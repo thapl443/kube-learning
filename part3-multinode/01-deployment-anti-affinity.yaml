@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-anti-affinity
+  labels:
+    app: nginx-ha
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-ha
+  template:
+    metadata:
+      labels:
+        app: nginx-ha
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nginx-ha
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
